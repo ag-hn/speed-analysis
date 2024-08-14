@@ -87,15 +87,15 @@ func (m Model) ListenForProcessedItem() tea.Cmd {
 	}
 }
 
-func processedItemToString(p ProcessedItem) string {
+func ProcessedItemToString(p ProcessedItem) string {
 	return fmt.Sprintf("Name: %s | Addr: %s | (Lat,Lng): (%s,%s) | Speed: %s mph", p.Name, p.Addr, p.Lat, p.Lng, p.Speed)
 }
 
 // copyToClipboardCmd copies the provided string to the clipboard.
 func copyToClipboardCmd(p ProcessedItem) tea.Cmd {
 	return func() tea.Msg {
-		err := clipboard.WriteAll(processedItemToString(p))
-		fmt.Println("printing", err)
+		err := clipboard.WriteAll(ProcessedItemToString(p))
+
 		if err != nil {
 			return errorMsg(err.Error())
 		}

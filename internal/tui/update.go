@@ -20,6 +20,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.analysis.SetSize(halfSize, height-3)
 		m.help.SetSize(halfSize, height)
+		m.statusbar.SetSize(msg.Width)
 
 		return m, tea.Batch(cmds...)
 	case tea.KeyMsg:
@@ -38,6 +39,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	
 	m.help, cmd = m.help.Update(msg)
 	cmds = append(cmds, cmd)
+
+	m.updateStatusBar()
 
 	return m, tea.Batch(cmds...)
 }

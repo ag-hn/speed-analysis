@@ -58,5 +58,5 @@ func renderProcessedItem(p ProcessedItem, textColor lipgloss.TerminalColor) stri
 	return lipgloss.NewStyle().
 		Bold(true).
 		Foreground(textColor).
-		Render(processedItemToString(p)) + "\n"
+		Render(ProcessedItemToString(p)) + "\n"
 }

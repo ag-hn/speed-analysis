@@ -1,9 +1,12 @@
 package tui
 
 import (
+	"time"
+
 	"github.com/ag-hn/speed-analysis/analysis"
 	"github.com/ag-hn/speed-analysis/help"
 	"github.com/ag-hn/speed-analysis/keys"
+	"github.com/ag-hn/speed-analysis/statusbar"
 )
 
 type sessionState int
@@ -23,11 +26,26 @@ type model struct {
 	analysis  			analysis.Model
 	state                 sessionState
 	keyMap                keys.KeyMap
+	statusbar             statusbar.Model	
+	statusMessage         string
+	statusMessageLifetime time.Duration
+	statusMessageTimer    *time.Timer
 }
 
 // New creates a new instance of the UI.
 func New(cfg Config) *model {
 	analysis := analysis.New()
+	statusbarModel := statusbar.New(
+		statusbar.ColorConfig{
+		},
+		statusbar.ColorConfig{
+		},
+		statusbar.ColorConfig{
+		},
+		statusbar.ColorConfig{
+		},
+	)
+
 
 	defaultKeyMap := keys.DefaultKeyMap()
 
@@ -51,5 +69,7 @@ func New(cfg Config) *model {
 		analysis: analysis,
 		state: idleState,
 		keyMap: defaultKeyMap,
+				statusbar:             statusbarModel,
+				statusMessageLifetime: time.Second,
 	}
 }
