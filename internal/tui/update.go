@@ -19,7 +19,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		height := msg.Height
 
 		m.analysis.SetSize(halfSize, height-3)
-		m.help.SetSize(halfSize, height)
+		m.help.SetSize(halfSize, height-3)
 		m.statusbar.SetSize(msg.Width)
 
 		return m, tea.Batch(cmds...)
