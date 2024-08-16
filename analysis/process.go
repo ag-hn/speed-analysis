@@ -118,6 +118,7 @@ func processResponse(res AddrResponse) []ProcessedItem {
 	workingAddresses := sorted
 
 	var previous AddrData
+	var last AddrData
 	distance := 0.0
     count := 0
 
@@ -127,6 +128,7 @@ func processResponse(res AddrResponse) []ProcessedItem {
 	for _, addr := range workingAddresses {
 		if previous == (AddrData{}) {
 			previous = addr
+            last = previous
 			t, err := strconv.Atoi(previous.Time)
 			if err != nil {
 				panic("ProcessFilePath+Cannot parse time property: " + previous.Addr)
@@ -157,6 +159,7 @@ func processResponse(res AddrResponse) []ProcessedItem {
 		currentTime := time.UnixMilli(int64(timeAsInt))
 
 		if previousTime.Sub(currentTime).Abs().Minutes() > DURATION_MINUTE_DELAY_THRESHOLD {
+            last = previous
 			previous = AddrData{}
 
             appendProcessedItem(distance, maxTime, minTime, addr.Ip, addr.Addr, count, &output, &processByIp)
@@ -180,9 +183,9 @@ func processResponse(res AddrResponse) []ProcessedItem {
 		output += fmt.Sprintf("\n%s,%s: Distance %f | prev %s | curr %s  | Lat %f | Lng % f\n", addr.Ip, addr.Addr, distance, currentTime.String(), previousTime.String(), cX, cY)
 	}
 
-    appendProcessedItem(distance, maxTime, minTime, previous.Ip, previous.Addr, count, &output, &processByIp)
+    appendProcessedItem(distance, maxTime, minTime, last.Ip, last.Addr, count, &output, &processByIp)
 
-	newFile := path.Join(OUTPUT_DATA_FILE, previous.Addr)
+	newFile := path.Join(OUTPUT_DATA_FILE, last.Addr)
 	filesystem.WriteToFile(newFile, output)
 
 	return processByIp
