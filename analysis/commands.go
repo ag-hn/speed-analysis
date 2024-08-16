@@ -2,6 +2,9 @@ package analysis
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"path"
 	"time"
 
 	"github.com/atotto/clipboard"
@@ -37,31 +40,6 @@ func (m *Model) NewStatusMessageCmd(s string) tea.Cmd {
 	}
 }
 
-// GetDirectoryListingCmd updates the directory listing based on the name of the directory provided.
-func (m Model) GetDirectoryListingCmd() tea.Cmd {
-	return func() tea.Msg {
-
-		return getProcessedFilesMsg{
-			processed: []ProcessedItem{
-				{
-					Name:  "Fake",
-					Addr:  "asldfjeiojwaklcdjkljersa",
-					Speed: "100",
-					Lat:   "0",
-					Lng:   "0",
-				},
-				{
-					Name:  "Fake 2",
-					Addr:  "asldfjeiojwaklcdjkljersa",
-					Speed: "100",
-					Lat:   "0",
-					Lng:   "0",
-				},
-			},
-		}
-	}
-}
-
 func (m Model) waitForProcessedItem() tea.Cmd {
 	return func() tea.Msg {
 		return waitForProcessedItemMsg{
@@ -72,14 +50,21 @@ func (m Model) waitForProcessedItem() tea.Cmd {
 
 func (m Model) ListenForProcessedItem() tea.Cmd {
 	return func() tea.Msg {
-		for i := range 10 {
-			time.Sleep(time.Millisecond * 100)
-			m.sub <- ProcessedItem{
-				Name:  fmt.Sprintf("%d", i),
-				Addr:  "asodijcpsklJopasdfjelsadfc",
-				Speed: "0",
-				Lat:   "0",
-				Lng:   "0",
+		paths, err := ListProcessFilePaths()
+		if err != nil {
+			panic(err)
+		}
+
+		for _, path := range paths {
+			// time.Sleep(time.Millisecond * 100)
+			item, err := ProcessFilePath(path)
+			if err != nil {
+				m.err = err
+				return errorMsg(err.Error())
+			}
+
+			for _, i := range item {
+				m.sub <- i
 			}
 		}
 
@@ -103,5 +88,24 @@ func copyToClipboardCmd(p ProcessedItem) tea.Cmd {
 		return copyToClipboardMsg(
 			fmt.Sprintf("%s %s %s", "Successfully copied", p.Name, "to clipboard"),
 		)
+	}
+}
+
+func openEditorCmd(p ProcessedItem) tea.Cmd {
+	return func() tea.Msg {
+		return errorMsg(
+			"openEditorCmd+Not implemented",
+		)
+		editor := os.Getenv("EDITOR")
+		if editor == "" {
+			editor = "code"
+		}
+
+		file := path.Join(OUTPUT_DATA_FILE, p.Addr)
+		c := exec.Command(editor, file)
+
+		return tea.ExecProcess(c, func(err error) tea.Msg {
+			return editorFinishedMsg{err}
+		})
 	}
 }

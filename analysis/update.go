@@ -78,6 +78,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			}
 
 			return m, copyToClipboardCmd(m.processed[m.Cursor])
+		case key.Matches(msg, m.keyMap.OpenInEditor):
+			if m.State != IdleState {
+				return m, nil
+			}
+
+			cmds = append(cmds, openEditorCmd(m.processed[m.Cursor]))
 		// case key.Matches(msg, m.keyMap.Process):
 		// 	m.State = ProcessingState
 		// 	cmds = append(cmds, m.ListenForProcessedItem()) // generate activity

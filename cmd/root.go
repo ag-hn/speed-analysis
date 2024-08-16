@@ -22,8 +22,6 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		fmt.Println("logging enabled")
-
 		// If logging is enabled, logs will be output to debug.log.
 		if enableLogging {
 			f, err := tea.LogToFile("debug.log", "debug")

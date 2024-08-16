@@ -60,6 +60,7 @@ func New(cfg Config) *model {
 			{Key: defaultKeyMap.CopyPathToClipboard.Help().Key, Description: defaultKeyMap.CopyPathToClipboard.Help().Desc},	
 			{Key: defaultKeyMap.Down.Help().Key, Description: defaultKeyMap.Down.Help().Desc},
 			{Key: defaultKeyMap.Up.Help().Key, Description: defaultKeyMap.Up.Help().Desc},	
+			{Key: defaultKeyMap.OpenInEditor.Help().Key, Description: defaultKeyMap.OpenInEditor.Help().Desc},	
 		},
 	)
 	helpModel.SetViewportDisabled(true)
@@ -70,6 +71,6 @@ func New(cfg Config) *model {
 		state: idleState,
 		keyMap: defaultKeyMap,
 				statusbar:             statusbarModel,
-				statusMessageLifetime: time.Second,
+				statusMessageLifetime: 100*time.Second,
 	}
 }

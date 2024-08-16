@@ -15,11 +15,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		halfSize := msg.Width / 2
+		// halfSize := msg.Width / 2
 		height := msg.Height
 
-		m.analysis.SetSize(halfSize, height-3)
-		m.help.SetSize(halfSize, height-3)
+		m.analysis.SetSize(msg.Width, height-3)
+		// m.help.SetSize(halfSize, height-3)
 		m.statusbar.SetSize(msg.Width)
 
 		return m, tea.Batch(cmds...)

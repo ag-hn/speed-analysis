@@ -9,6 +9,7 @@ type KeyMap struct {
 	Quit                key.Binding
 	Process key.Binding
 	CopyPathToClipboard key.Binding	
+	OpenInEditor key.Binding	
 }
 
 func DefaultKeyMap() KeyMap {
@@ -19,5 +20,6 @@ func DefaultKeyMap() KeyMap {
 		Down:                key.NewBinding(key.WithKeys("j", "down", "ctrl+n"), key.WithHelp("j", "Go down")),
 		Up:                  key.NewBinding(key.WithKeys("k", "up", "ctrl+p"), key.WithHelp("k", "Go up")),	
 		CopyPathToClipboard: key.NewBinding(key.WithKeys("y"), key.WithHelp("y", "Copy path to clipboard")),	
+		OpenInEditor:        key.NewBinding(key.WithKeys("e"), key.WithHelp("e", "Open in $EDITOR")),
 	}
 }
