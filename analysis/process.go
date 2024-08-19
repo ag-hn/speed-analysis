@@ -48,7 +48,7 @@ const MINIMUM_DURATION_LOGGING_THRESHOLD = 0.1
 // In miles
 const MINIMUM_SPEED_LOGGING_THRESHOLD = 0.0001
 // Minimum number on records which consider a valid item
-const MINIMUM_PROCESSING_COUNT_LOGGING_THRESHOLD = 3
+const MINIMUM_PROCESSING_COUNT_LOGGING_THRESHOLD = 2
 
 func ListProcessFilePaths() (paths []fs.DirEntry, err error) {
 	var files []fs.DirEntry
@@ -134,7 +134,7 @@ func processResponse(res AddrResponse) []ProcessedItem {
 				panic("ProcessFilePath+Cannot parse time property: " + previous.Addr)
 			}
 			tt := time.UnixMilli(int64(t))
-			output += fmt.Sprintf("\nStart new processing - %s,%s: Time %s | Lat %f | Lng %f\n", addr.Ip, addr.Addr, tt.String(), addr.Lat, addr.Lng)
+			output += fmt.Sprintf("\nStart new processing - %s,%s: rssi %d | Time %s | Lat %f | Lng %f\n", addr.Ip, addr.Addr, addr.Rssi, tt.String(), addr.Lat, addr.Lng)
 			minTime = tt
 			maxTime = tt
 
@@ -162,7 +162,7 @@ func processResponse(res AddrResponse) []ProcessedItem {
             last = previous
 			previous = AddrData{}
 
-            appendProcessedItem(distance, maxTime, minTime, addr.Ip, addr.Addr, count, &output, &processByIp)
+            appendProcessedItem(distance, maxTime, minTime, addr.Ip, addr.Addr, addr.Rssi, count, &output, &processByIp)
 
 			continue
 		}
@@ -180,10 +180,10 @@ func processResponse(res AddrResponse) []ProcessedItem {
 
         count += 1
 		previous = addr
-		output += fmt.Sprintf("\n%s,%s: Distance %f | prev %s | curr %s  | Lat %f | Lng % f\n", addr.Ip, addr.Addr, distance, currentTime.String(), previousTime.String(), cX, cY)
+		output += fmt.Sprintf("\n%s,%s: Distance %f | rssi %d | prev %s | curr %s  | Lat %f | Lng % f\n", addr.Ip, addr.Addr, distance, addr.Rssi, currentTime.String(), previousTime.String(), cX, cY)
 	}
 
-    appendProcessedItem(distance, maxTime, minTime, last.Ip, last.Addr, count, &output, &processByIp)
+    appendProcessedItem(distance, maxTime, minTime, last.Ip, last.Addr, last.Rssi, count, &output, &processByIp)
 
 	newFile := path.Join(OUTPUT_DATA_FILE, last.Addr)
 	filesystem.WriteToFile(newFile, output)
@@ -203,13 +203,13 @@ func getDistance(lat1 float64, lng1 float64, lat2 float64, lng2 float64) float64
 }
 
 // *__Mutates `output` and `list`
-func appendProcessedItem(distance float64, maxTime time.Time, minTime time.Time, ip string, addr string, count int, output *string, list *[]ProcessedItem) bool {
+func appendProcessedItem(distance float64, maxTime time.Time, minTime time.Time, ip string, addr string, rssi int, count int, output *string, list *[]ProcessedItem) bool {
 	duration := maxTime.Sub(minTime)
     formattedDuration := duration.Hours()
 	speed := distance / formattedDuration
 
     if count >= MINIMUM_PROCESSING_COUNT_LOGGING_THRESHOLD && speed >= MINIMUM_SPEED_LOGGING_THRESHOLD && duration.Minutes() >= MINIMUM_DURATION_LOGGING_THRESHOLD {
-        *output += fmt.Sprintf("\n-----\nduration: %fh or %fmin\n(min,max): (%s,%s)\ndistance: %f\nspeed: %f\n\n", formattedDuration, duration.Minutes(), minTime.String(), maxTime.String(), distance, speed)
+        *output += fmt.Sprintf("\n-----\nduration: %fh or %fmin\nrssi: %d\n(min,max): (%s,%s)\ndistance: %f\nspeed: %f\n\n", formattedDuration, duration.Minutes(), rssi, minTime.String(), maxTime.String(), distance, speed)
         item := ProcessedItem{
             Name:  ip,
             Addr:  addr,
